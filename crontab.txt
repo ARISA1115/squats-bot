@@ -1,5 +1,3 @@
 TZ=Asia/Tokyo
-0  9,12,15,18 * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1
-45 9,12,15    * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1
-30 10,13,16   * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1
-15 11,14,17   * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1
+# 平日 9:00-18:00 の1時間ごと
+0  9,10,11,12,13,14,15,16,17,18 * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1
