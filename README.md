@@ -1,4 +1,4 @@
-# squats-bot
+# workout-reminder-bot
 
 スクワット & ランジチャレンジのリマインダーをSlackに自動送信するボットです。
 
@@ -19,7 +19,7 @@
 
 ```bash
 git clone <repository-url>
-cd squats-bot
+cd workout-reminder-bot
 ```
 
 ### 2. 環境変数の設定
@@ -51,7 +51,7 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ## ファイル構成
 
 ```
-squats-bot/
+workout-reminder-bot/
 ├── .github/
 │   └── workflows/
 │       └── suquats.yaml    # GitHub Actionsワークフロー
