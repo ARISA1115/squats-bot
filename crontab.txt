@@ -1,3 +1,0 @@
-TZ=Asia/Tokyo
-# 平日 9:00-18:00 の1時間ごと
-0  9,10,11,12,13,14,15,16,17,18 * * 1-5  /home/arisa/squats-bot/post_squats.sh >> /home/arisa/squats-bot/cron.log 2>&1

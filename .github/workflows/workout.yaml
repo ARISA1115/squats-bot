@@ -1,0 +1,84 @@
+name: Squat & Lunges Challenge
+
+on:
+  schedule:
+    # 平日（月〜金）のJST 09:00,10:00,11:00,12:00,13:00,14:00,15:00,16:00,17:00,18:00 に通知
+    # 遅延を考慮して、各時刻の5分前にスケジュール設定
+    # JST = UTC+9 なので、JST 09:00 = UTC 00:00、JST 10:00 = UTC 01:00 など
+    - cron: '55 23 * * 0,1,2,3,4'  # 平日JST 09:00通知のため、日曜日〜木曜日のUTC 23:55にスケジュール（月曜日〜金曜日のJST 08:55）
+    - cron: '55 0 * * 1-5'   # 平日JST 10:00通知のため、月曜日〜金曜日のUTC 00:55にスケジュール（月曜日〜金曜日のJST 09:55）
+    - cron: '55 1 * * 1-5'   # 平日JST 11:00通知のため、月曜日〜金曜日のUTC 01:55にスケジュール（月曜日〜金曜日のJST 10:55）
+    - cron: '55 2 * * 1-5'   # 平日JST 12:00通知のため、月曜日〜金曜日のUTC 02:55にスケジュール（月曜日〜金曜日のJST 11:55）
+    - cron: '55 3 * * 1-5'   # 平日JST 13:00通知のため、月曜日〜金曜日のUTC 03:55にスケジュール（月曜日〜金曜日のJST 12:55）
+    - cron: '55 4 * * 1-5'   # 平日JST 14:00通知のため、月曜日〜金曜日のUTC 04:55にスケジュール（月曜日〜金曜日のJST 13:55）
+    - cron: '55 5 * * 1-5'   # 平日JST 15:00通知のため、月曜日〜金曜日のUTC 05:55にスケジュール（月曜日〜金曜日のJST 14:55）
+    - cron: '55 6 * * 1-5'   # 平日JST 16:00通知のため、月曜日〜金曜日のUTC 06:55にスケジュール（月曜日〜金曜日のJST 15:55）
+    - cron: '55 7 * * 1-5'   # 平日JST 17:00通知のため、月曜日〜金曜日のUTC 07:55にスケジュール（月曜日〜金曜日のJST 16:55）
+    - cron: '55 8 * * 1-5'   # 平日JST 18:00通知のため、月曜日〜金曜日のUTC 08:55にスケジュール（月曜日〜金曜日のJST 17:55）
+  workflow_dispatch: {}
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Post to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_WEBHOOK_URL}" ]; then
+            echo "Error: SLACK_WEBHOOK_URL is not set"
+            exit 1
+          fi
+          TIMESTAMP=$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S JST')
+          
+          # 3つの種目からランダムに1つ選ぶ（0: スクワット, 1: ランジ, 2: プランク）
+          EXERCISE_NUM=$((RANDOM % 3))
+          
+          # 10%の確率で増量版にする
+          BOOST_NUM=$((RANDOM % 100))
+          IS_BOOSTED=false
+          if [ $BOOST_NUM -lt 10 ]; then
+            IS_BOOSTED=true
+          fi
+          
+          # 種目と回数/時間を決定
+          case $EXERCISE_NUM in
+            0)
+              EXERCISE_NAME="スクワット"
+              if [ "$IS_BOOSTED" = true ]; then
+                EXERCISE_COUNT="15回"
+              else
+                EXERCISE_COUNT="10回"
+              fi
+              TITLE="🔥 Workout Challenge - スクワット"
+              ;;
+            1)
+              EXERCISE_NAME="ランジ"
+              if [ "$IS_BOOSTED" = true ]; then
+                EXERCISE_COUNT="15回"
+              else
+                EXERCISE_COUNT="10回"
+              fi
+              TITLE="🔥 Workout Challenge - ランジ"
+              ;;
+            2)
+              EXERCISE_NAME="プランク"
+              if [ "$IS_BOOSTED" = true ]; then
+                EXERCISE_COUNT="45秒"
+              else
+                EXERCISE_COUNT="30秒"
+              fi
+              TITLE="🔥 Workout Challenge - プランク"
+              ;;
+          esac
+          
+          CHALLENGE_TEXT="🔥 *Workout Challenge*\\n\\n${EXERCISE_NAME}: ${EXERCISE_COUNT}"
+          payload="{\"text\":\"${TITLE}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${CHALLENGE_TEXT}\"}},{\"type\":\"context\",\"elements\":[{\"type\":\"mrkdwn\",\"text\":\"⏰ ${TIMESTAMP}\"}]}]}"
+          curl -sS -X POST \
+            -H 'Content-type: application/json' \
+            --data "${payload}" \
+            "${SLACK_WEBHOOK_URL}"
